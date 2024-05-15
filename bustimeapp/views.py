@@ -8,13 +8,12 @@ import requests
 def get_token():
 
     headersList = {
-    "Accept": "/",
+    "Accept": "*/*",
     "User-Agent": "*",
     "Content-Type": "application/x-www-form-urlencoded" 
     }
 
     payload = f"grant_type=client_credentials&client_id={settings.CLIENT_ID}&client_secret={settings.CLIENT_SECRET}"
-
     token = None
 
     try:
@@ -24,6 +23,7 @@ def get_token():
         pass
 
     return token
+
 
 def get_request(token, api_url, endpoint, params=None):
     req_params = {}
@@ -38,6 +38,10 @@ def get_request(token, api_url, endpoint, params=None):
         },params=req_params)
     
     return response
+
+
+
+
 class GetBusesView(APIView):
     def get(self, request):
         buses = None
@@ -49,6 +53,37 @@ class GetBusesView(APIView):
             
         except Exception:
             pass
-
+        
         return Response(buses)
     
+
+class GetStopsView(APIView):
+    def get(self, request):
+        stops = None
+        token = get_token()
+        try:    
+            response = get_request(token, settings.API_URL, settings.STOPS_ENDPOINT)
+
+            if response.status_code < 300:
+                stops = response.json()
+        except Exception:
+            pass
+
+        return Response(stops)
+
+
+class GetStopInfoView(APIView):
+    def get(self, request, *args, **kwargs):
+        stop_id = self.kwargs['stop_id']
+        token = get_token()
+        stop_info = None
+    
+        try:    
+            response = get_request(token, settings.API_URL, f'{settings.STOPS_ENDPOINT}/{stop_id}')
+
+            if response.status_code < 300:
+                stop_info = response.json()
+        except Exception:
+            pass
+
+        return Response(stop_info)
