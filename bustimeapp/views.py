@@ -1,8 +1,14 @@
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework import status
 import requests
 from django.conf import settings
-import requests
+from rest_framework import viewsets
+from .models import Stop
+from .serializers import StopSerializer
+from rest_framework.decorators import action
+from drf_spectacular.utils import extend_schema
+
 
 
 def get_token():
@@ -87,3 +93,33 @@ class GetStopInfoView(APIView):
             pass
 
         return Response(stop_info)
+    
+    
+class StopViewSet(viewsets.ViewSet):
+
+    def get_queryset(self):
+            return Stop.objects.all()  
+          
+    @extend_schema(responses=StopSerializer)
+    def list(self, request):
+        """
+        Endpoint to retrieve all stops
+        """
+        queryset = self.get_queryset()
+
+        serializer = StopSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+    @extend_schema(request=StopSerializer(many=True), responses=StopSerializer(many=True))
+    def create(self, request):
+        """
+        Endpoint to create a new stop
+        """
+        serializer = StopSerializer(data=request.data, many=True)
+        if serializer.is_valid():
+            serializer.save()                 
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        
+        print(serializer.errors)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
