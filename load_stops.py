@@ -9,9 +9,9 @@ response_json = response.json()
 data = []
 for stop in response_json:
     postUrl = "http://localhost:8000/api/stop/"
-    body = {"stop_sid": stop['busstopId'],
-    "stop_lat": stop['location']['coordinates'][0],
-    "stop_lng": stop['location']['coordinates'][1]}
+    body = {"id": stop['busstopId'],
+    "lng": stop['location']['coordinates'][0],
+    "lat": stop['location']['coordinates'][1]}
     headers = {'Content-Type': 'application/json'}
     data.append(body)
 
