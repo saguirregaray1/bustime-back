@@ -13,6 +13,8 @@ __pycache__/
 # Media files
 /media/
 
+db.sqlite3
+
 # Virtual environment
 venv/
 .env

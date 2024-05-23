@@ -16,8 +16,17 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
+from bustimeapp import views
+
+router = DefaultRouter()
+router.register(r"stop", views.StopViewSet, basename="stops")
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('bustimeapp/', include('bustimeapp.urls'))
+    path('bustimeapp/', include('bustimeapp.urls')),
+    path("api/", include(router.urls)),
+    path("api/schema", SpectacularAPIView.as_view(), name="schema"),
+    path("api/schema/docs", SpectacularSwaggerView.as_view(url_name="schema")),
 ]
