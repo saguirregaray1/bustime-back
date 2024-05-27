@@ -57,7 +57,8 @@ class GetBusesView(APIView):
             if response.status_code < 300:
                 buses = response.json()
             
-        except Exception:
+        except Exception as e:
+            print(e)
             pass
         
         return Response(buses)
@@ -67,13 +68,21 @@ class GetStopsView(APIView):
     def get(self, request):
         stops = None
         token = get_token()
-        try:    
-            response = get_request(token, settings.API_URL, settings.STOPS_ENDPOINT)
 
-            if response.status_code < 300:
-                stops = response.json()
-        except Exception:
-            pass
+        print(settings.API_URL, settings.STOPS_ENDPOINT)
+        response = get_request(token, settings.API_URL, settings.STOPS_ENDPOINT)
+
+        if response.status_code < 300:
+            stops = response.json()
+
+        # try:    
+        #     response = get_request(token, settings.API_URL, settings.STOPS_ENDPOINT)
+
+        #     if response.status_code < 300:
+        #         stops = response.json()
+        # except Exception as e:
+        #     print(e)
+        #     pass
 
         return Response(stops)
 
@@ -89,8 +98,8 @@ class GetStopInfoView(APIView):
 
             if response.status_code < 300:
                 stop_info = response.json()
-        except Exception:
-            pass
+        except Exception as e:
+            print(e)
 
         return Response(stop_info)
     

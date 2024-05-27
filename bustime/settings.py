@@ -14,7 +14,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 import os
 
-load_dotenv()
+load_dotenv("bustime/.env")
 
 # API CONSTANTS
 CLIENT_ID = os.getenv('CLIENT_ID')
@@ -27,11 +27,14 @@ LINE_VARIANTS_ENDPOINT = os.getenv('LINE_VARIANTS_ENDPOINT')
 UPCOMING_BUSES = os.getenv('UPCOMING_BUSES')
 OTHER_API_URL=os.getenv('OTHER_API_URL')
 OTHER_API_ENDPOINT=os.getenv('OTHER_API_ENDPOINT')
-
+CHECK= os.getenv('CHECK')
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+print("Settings file loaded!")
+if CHECK=="PANIESCRACK":
+    print("El archivo .env fue cargado correctamente")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
@@ -55,7 +58,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'channels'
+    'channels',
     'drf_spectacular',
     'bustimeapp',
     'corsheaders'
