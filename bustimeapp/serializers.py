@@ -16,14 +16,29 @@ class StopSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     """Serializer for the user object."""
 
+    favourite_stops = StopSerializer(many=True, required=False)
+
     class Meta:
         model = get_user_model()
-        fields = ["email", "password", "name"]
+        fields = ["email", "password", "name", "favourite_stops"]
         extra_kwargs = {"password": {"write_only": True, "min_length": 5}}
+
+    def _add_fav_stops(self, favourite_stops, user):
+        for stop in favourite_stops:
+            try:
+                stop_obj = Stop.objects.get(id=stop.id)
+                user.favourite_stops.add(stop_obj)
+            except:
+                raise serializers.ValidationError(
+                    f"Stop with id {stop.id} does not exist."
+                )
 
     def create(self, validated_data):
         """Create and return a user with encrypted password."""
-        return get_user_model().objects.create_user(**validated_data)
+        favourite_stops = validated_data.pop("favourite_stops", [])
+        user = get_user_model().objects.create_user(**validated_data)
+        self._add_fav_stops(favourite_stops, user)
+        return user
 
     def update(self, instance, validated_data):
         """Update and return user."""
