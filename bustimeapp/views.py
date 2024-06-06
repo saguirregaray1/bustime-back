@@ -1,6 +1,7 @@
 from rest_framework import status, viewsets, generics, authentication, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.authentication import TokenAuthentication
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.settings import api_settings
 
@@ -10,7 +11,7 @@ import requests
 from django.conf import settings
 from .models import Stop
 from .serializers import StopSerializer, UserSerializer, AuthTokenSerializer
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 
 
 def get_token():
@@ -141,6 +142,49 @@ class StopViewSet(viewsets.ViewSet):
 
         print(serializer.errors)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class AddFavouriteStopView(APIView):
+    """Add a favourite stop to the authenticated user."""
+
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    @extend_schema(
+        operation_id="add_favourite_stop",
+        parameters=[
+            OpenApiParameter(
+                name="stop_id",
+                description="ID of the stop to add to favourites",
+                required=True,
+                type=int,
+            ),
+        ],
+        responses={
+            200: "Stop added to favourites.",
+            404: "Stop not found.",
+        },
+    )
+    def post(self, request):
+        stop_id = request.query_params.get("stop_id")
+
+        if stop_id is None:
+            return Response(
+                {"error": "stop_id parameter is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            stop = Stop.objects.get(sid=stop_id)
+        except Stop.DoesNotExist:
+            return Response(
+                {"error": "Stop not found."}, status=status.HTTP_404_NOT_FOUND
+            )
+
+        request.user.favourite_stops.add(stop)
+        return Response(
+            {"message": "Stop added to favourites."}, status=status.HTTP_200_OK
+        )
 
 
 class CreateUserView(generics.CreateAPIView):
