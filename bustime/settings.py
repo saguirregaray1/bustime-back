@@ -51,6 +51,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    "daphne",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -64,6 +65,8 @@ INSTALLED_APPS = [
     "bustimeapp",
     "corsheaders",
 ]
+
+ASGI_APPLICATION = "bustime.asgi.application"
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
@@ -155,16 +158,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 AUTH_USER_MODEL = "bustimeapp.User"
 
-# Add this at the end of your settings file
-ASGI_APPLICATION = "bustime-back.asgi.application"
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels_redis.core.RedisChannelLayer",
-        "CONFIG": {
-            "hosts": [("127.0.0.1", 6379)],
-        },
-    },
-}
+
 SPECTACULAR_SETTINGS = {
     "TITLE": "Django Project",
 }

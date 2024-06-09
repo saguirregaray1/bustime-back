@@ -36,6 +36,7 @@ def get_token():
     return token
 
 
+
 def get_request(token, api_url, endpoint, params=None):
     req_params = {}
     if params is not None:
@@ -56,6 +57,8 @@ def get_request(token, api_url, endpoint, params=None):
 
 
 class GetBusesView(APIView):
+    
+    serializer_class = None
     def get(self, request):
         buses = None
         try:
@@ -72,6 +75,8 @@ class GetBusesView(APIView):
 
 
 class GetStopsView(APIView):
+    serializer_class = None
+
     def get(self, request):
         stops = None
         token = get_token()
@@ -95,18 +100,40 @@ class GetStopsView(APIView):
 
 
 class GetStopInfoView(APIView):
+    serializer_class = None
+    
+    def _get_upcoming_buses(self,token, bus_stop_id, bus_lines):
+        upcoming_buses = None
+        endpoint = f"{settings.STOPS_ENDPOINT}/{bus_stop_id}/{settings.UPCOMING_BUSES}"
+        try:
+            response = get_request(token, settings.API_URL, endpoint, params={'lines': ','.join(map(str, bus_lines))})
+            if response.status_code < 300:
+                upcoming_buses = response.json()
+        except Exception:
+            pass
+        return upcoming_buses
+    
+    
     def get(self, request, *args, **kwargs):
+    
         stop_id = self.kwargs["stop_id"]
         token = get_token()
         stop_info = None
 
         try:
-            response = get_request(
-                token, settings.API_URL, f"{settings.STOPS_ENDPOINT}/{stop_id}"
-            )
+            url=f"{settings.STOPS_ENDPOINT}/{stop_id}"
+            response = get_request(token, settings.API_URL, url)
+            
+            print(response)
 
             if response.status_code < 300:
                 stop_info = response.json()
+                
+            bus_lines = stop_info.get("lineas", [])
+            upcoming_buses = self._get_upcoming_buses(token, stop_id, bus_lines)
+            
+            if upcoming_buses is not None:
+                stop_info["upcoming_buses"] = upcoming_buses
         except Exception as e:
             print(e)
 
@@ -147,6 +174,7 @@ class StopViewSet(viewsets.ViewSet):
 class AddFavouriteStopView(APIView):
     """Add a favourite stop to the authenticated user."""
 
+    serializer_class = None
     authentication_classes = [TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated]
 
@@ -160,10 +188,6 @@ class AddFavouriteStopView(APIView):
                 type=int,
             ),
         ],
-        responses={
-            200: "Stop added to favourites.",
-            404: "Stop not found.",
-        },
     )
     def post(self, request):
         stop_id = request.query_params.get("stop_id")
