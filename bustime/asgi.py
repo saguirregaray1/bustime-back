@@ -7,10 +7,8 @@ import bustimeapp.routing
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'bustime.settings')
 
 application = ProtocolTypeRouter({
-    "http": get_asgi_application(),  # Handle HTTP requests
-    "websocket": AuthMiddlewareStack(  # Handle WebSocket connections
-        URLRouter(
+    "http": get_asgi_application(), 
+    "websocket": URLRouter(
             bustimeapp.routing.websocket_urlpatterns
         )
-    ),
 })
