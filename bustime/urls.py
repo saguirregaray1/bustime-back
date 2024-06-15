@@ -22,6 +22,7 @@ from bustimeapp import views
 
 router = DefaultRouter()
 router.register(r"stop", views.StopViewSet, basename="stops")
+router.register(r"bus-schedule", views.BusScheduleViewSet, basename="bus-schedule")
 
 urlpatterns = [
     path('admin/', admin.site.urls),

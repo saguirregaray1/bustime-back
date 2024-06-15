@@ -2,7 +2,7 @@ from rest_framework import serializers
 from django.contrib.auth import get_user_model, authenticate
 from django.utils.translation import gettext as _
 
-from .models import Stop
+from .models import Stop, BusSchedule
 
 
 class StopSerializer(serializers.ModelSerializer):
@@ -11,6 +11,12 @@ class StopSerializer(serializers.ModelSerializer):
     class Meta:
         model = Stop
         fields = ["id", "lat", "lng"]
+        
+class BusScheduleSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = BusSchedule
+        fields = "__all__"
 
 
 class UserSerializer(serializers.ModelSerializer):

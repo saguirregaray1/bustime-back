@@ -9,8 +9,8 @@ from rest_framework.settings import api_settings
 import requests
 
 from django.conf import settings
-from .models import Stop
-from .serializers import StopSerializer, UserSerializer, AuthTokenSerializer
+from .models import Stop, BusSchedule
+from .serializers import StopSerializer, UserSerializer, AuthTokenSerializer, BusScheduleSerializer
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 
 
@@ -163,6 +163,36 @@ class StopViewSet(viewsets.ViewSet):
         Endpoint to create a new stop
         """
         serializer = StopSerializer(data=request.data, many=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        print(serializer.errors)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class BusScheduleViewSet(viewsets.ViewSet):
+
+    def get_queryset(self):
+        return BusSchedule.objects.all()
+
+    @extend_schema(responses=BusScheduleSerializer)
+    def list(self, request):
+        """
+        Endpoint to retrieve all stops
+        """
+        queryset = self.get_queryset()
+
+        serializer = BusScheduleSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+    @extend_schema(
+        request=BusScheduleSerializer(many=True), responses=BusScheduleSerializer(many=True)
+    )
+    def create(self, request):
+        """
+        Endpoint to create a new stop
+        """
+        serializer = BusScheduleSerializer(data=request.data, many=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)

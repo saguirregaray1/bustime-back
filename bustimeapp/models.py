@@ -15,7 +15,18 @@ class Stop(models.Model):
 
     def __str__(self) -> str:
         return f"{self.lat} - {self.lng}"
+    
+class BusSchedule(models.Model):
+    tipo_dia = models.IntegerField()
+    cod_variante = models.IntegerField()
+    frecuencia = models.IntegerField()
+    cod_ubic_parada = models.IntegerField()
+    ordinal = models.IntegerField()
+    hora = models.IntegerField()
+    dia_anterior = models.CharField()
 
+    def __str__(self) -> str:
+        return self.id
 
 class UserManager(BaseUserManager):
     """Manager for users."""
