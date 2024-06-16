@@ -42,7 +42,8 @@ class LiveBustopConsumer(AsyncWebsocketConsumer):
                     error_message = response.text
                     if response.status_code == 429:
                         await asyncio.sleep(20)
-                    raise Exception(f"Request failed with status {response.status_code}. Message: {error_message}")
+                    else:
+                        raise Exception(f"Request failed with status {response.status_code}. Message: {error_message}")
 
                 stop_info = response.json()
 
@@ -53,7 +54,11 @@ class LiveBustopConsumer(AsyncWebsocketConsumer):
                 text_data=json.dumps(stop_info)
                 await self.send(text_data=text_data)
             except Exception as e:
-                print(e)
+                await self.send(text_data=json.dumps({
+                    'error': str(e)
+                })
+                )
+                break
 
             
     
